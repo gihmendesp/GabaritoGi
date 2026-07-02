@@ -1,0 +1,338 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#eef3fb;
+    color:#1c1c1c;
+    transition:.3s;
+}
+
+/* ====== TEMA ESCURO ====== */
+body.dark{
+    background:#0f172a;
+    color:#e5e7eb;
+}
+
+header{
+    background:#1565c0;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.topo{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    max-width:1000px;
+    margin:auto;
+}
+
+#toggleTema{
+    background:transparent;
+    border:1px solid white;
+    color:white;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+main{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+body.dark .card{
+    background:#1e293b;
+}
+
+h2{
+    margin-bottom:15px;
+    color:#1565c0;
+}
+
+body.dark h2{
+    color:#60a5fa;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:10px;
+    margin-bottom:10px;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    outline:none;
+}
+
+body.dark input,
+body.dark textarea,
+body.dark select{
+    background:#0f172a;
+    color:white;
+    border:1px solid #334155;
+}
+
+button{
+    background:#1565c0;
+    color:white;
+    border:none;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+/* ===== STATS ===== */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+}
+
+.stats div{
+    text-align:center;
+    padding:10px;
+    background:#f1f5f9;
+    border-radius:10px;
+}
+
+body.dark .stats div{
+    background:#0f172a;
+    border:1px solid #334155;
+}
+
+.stats h3{
+    font-size:14px;
+    margin-bottom:5px;
+}
+
+.stats p{
+    font-size:22px;
+    font-weight:bold;
+}
+
+/* ===== BARRA ===== */
+
+.barra{
+    width:100%;
+    height:20px;
+    background:#cbd5e1;
+    border-radius:20px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+#progresso{
+    width:0%;
+    height:100%;
+    background:#22c55e;
+    transition:.3s;
+}
+
+/* ===== LISTA ===== */
+
+#lista{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.questao{
+    padding:15px;
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+}
+
+body.dark .questao{
+    border:1px solid #334155;
+}
+
+.questao small{
+    display:block;
+    margin:5px 0;
+    color:#64748b;
+}
+
+.acoes{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+}
+
+.acoes button{
+    flex:1;
+}
+
+.btn-acerto{
+    background:#16a34a;
+}
+
+.btn-erro{
+    background:#dc2626;
+}
+
+.btn-fav{
+    background:#f59e0b;
+}
+
+.btn-remove{
+    background:#6b7280;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:700px){
+
+.stats{
+    grid-template-columns:repeat(2,1fr);
+}
+
+}
+// ===============================
+// GABARITO DA GI v2.0
+// PARTE 1 - BASE DO SISTEMA
+// ===============================
+
+// Banco de dados
+let questoes =
+JSON.parse(localStorage.getItem("questoes")) || [];
+
+// Elementos da interface
+const lista = document.getElementById("lista");
+
+const disciplina = document.getElementById("disciplina");
+const banca = document.getElementById("banca");
+const assunto = document.getElementById("assunto");
+const concurso = document.getElementById("concurso");
+const ano = document.getElementById("ano");
+const enunciado = document.getElementById("enunciado");
+const resposta = document.getElementById("resposta");
+
+const btnAdicionar = document.getElementById("btnAdicionar");
+
+// Estatísticas
+const totalEl = document.getElementById("total");
+const respondidasEl = document.getElementById("respondidas");
+const acertosEl = document.getElementById("acertos");
+const errosEl = document.getElementById("erros");
+
+const progresso = document.getElementById("progresso");
+const mensagem = document.getElementById("mensagem");
+
+// Filtros
+const filtroTexto = document.getElementById("filtroTexto");
+const filtroStatus = document.getElementById("filtroStatus");
+
+// ===============================
+// SALVAR NO LOCALSTORAGE
+// ===============================
+
+function salvar(){
+    localStorage.setItem(
+        "questoes",
+        JSON.stringify(questoes)
+    );
+}
+
+// ===============================
+// ADICIONAR QUESTÃO
+// ===============================
+
+function adicionarQuestao(){
+
+    if(
+        !disciplina.value ||
+        !banca.value ||
+        !assunto.value ||
+        !enunciado.value
+    ){
+        alert("Preencha os campos obrigatórios.");
+        return;
+    }
+
+    const nova = {
+        id: Date.now(),
+        disciplina: disciplina.value,
+        banca: banca.value,
+        assunto: assunto.value,
+        concurso: concurso.value,
+        ano: ano.value,
+        enunciado: enunciado.value,
+        resposta: resposta.value,
+
+        status: "nao", // nao, acerto, erro
+        favorito: false
+    };
+
+    questoes.push(nova);
+
+    salvar();
+
+    limparCampos();
+
+    renderizar();
+}
+
+// ===============================
+// LIMPAR CAMPOS
+// ===============================
+
+function limparCampos(){
+    disciplina.value = "";
+    banca.value = "";
+    assunto.value = "";
+    concurso.value = "";
+    ano.value = "";
+    enunciado.value = "";
+    resposta.value = "";
+}
+
+// ===============================
+// ALTERAR STATUS
+// ===============================
+
+function marcarAcerto(id){
+    const q = questoes.find(q => q.id === id);
+    q.status = "acerto";
+    salvar();
+    renderizar();
+}
+
+function marcarErro(id){
+    const q = questoes.find(q => q.id === id);
+    q.status = "erro";
+    salvar();
+    renderizar();
+}
+
+// ===============================
+// FAVORITO
+// ===============================
+
+function toggleFavorito(id){
+    const q = questoes.find(q => q.id === id);
+    q.favorito = !q.favorito;
+    salvar();
+    renderizar();
+}
