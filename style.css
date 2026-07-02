@@ -1,209 +1,94 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+let respostas = {};
+let gabarito = {};
+
+function gerar(){
+
+const inicio = Number(document.getElementById("inicio").value);
+const fim = Number(document.getElementById("fim").value);
+
+const prova = document.getElementById("prova");
+prova.innerHTML = "";
+
+respostas = {};
+gabarito = {};
+
+for(let i = inicio; i <= fim; i++){
+
+gabarito[i] = gerarLetra();
+
+const div = document.createElement("div");
+div.className = "questao";
+
+div.innerHTML = `
+<h3>Questão ${i}</h3>
+
+<div class="alternativas">
+<button onclick="marcar(${i},'A')">A</button>
+<button onclick="marcar(${i},'B')">B</button>
+<button onclick="marcar(${i},'C')">C</button>
+<button onclick="marcar(${i},'D')">D</button>
+<button onclick="marcar(${i},'E')">E</button>
+</div>
+`;
+
+prova.appendChild(div);
 }
 
-body{
-    background:#eef3fb;
-    color:#1c1c1c;
-    transition:.3s;
 }
 
-/* ====== TEMA ESCURO ====== */
-body.dark{
-    background:#0f172a;
-    color:#e5e7eb;
+function marcar(q, alt){
+respostas[q] = alt;
 }
 
-header{
-    background:#1565c0;
-    color:white;
-    padding:20px;
-    text-align:center;
+function gerarLetra(){
+const letras = ["A","B","C","D","E"];
+return letras[Math.floor(Math.random()*5)];
 }
 
-.topo{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    max-width:1000px;
-    margin:auto;
+function corrigir(){
+
+let acertos = 0;
+let erros = 0;
+
+for(let q in respostas){
+if(respostas[q] === gabarito[q]){
+acertos++;
+}else{
+erros++;
+}
 }
 
-#toggleTema{
-    background:transparent;
-    border:1px solid white;
-    color:white;
-    padding:6px 10px;
-    border-radius:8px;
-    cursor:pointer;
+const total = acertos + erros;
+const porcentagem = Math.round((acertos/total)*100);
+
+let mensagem = "";
+
+if(porcentagem >= 80){
+mensagem = "🔥 Excelente desempenho! Você está indo muito bem.";
+}
+else if(porcentagem >= 60){
+mensagem = "👍 Você está na média, mas pode melhorar.";
+}
+else{
+mensagem = "📚 Precisa estudar mais e revisar os conteúdos.";
 }
 
-main{
-    max-width:1000px;
-    margin:auto;
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
+const frases = [
+"Continue firme, a disciplina vence a motivação.",
+"Cada erro te aproxima da aprovação.",
+"Você está evoluindo mais do que imagina.",
+"A consistência é o segredo da aprovação.",
+"Nenhum esforço é em vão."
+];
 
-.card{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,.08);
-}
+const fraseFinal = frases[Math.floor(Math.random()*frases.length)];
 
-body.dark .card{
-    background:#1e293b;
-}
-
-h2{
-    margin-bottom:15px;
-    color:#1565c0;
-}
-
-body.dark h2{
-    color:#60a5fa;
-}
-
-input, textarea, select{
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-    border:1px solid #cbd5e1;
-    border-radius:8px;
-    outline:none;
-}
-
-body.dark input,
-body.dark textarea,
-body.dark select{
-    background:#0f172a;
-    color:white;
-    border:1px solid #334155;
-}
-
-button{
-    background:#1565c0;
-    color:white;
-    border:none;
-    padding:10px;
-    border-radius:8px;
-    cursor:pointer;
-    transition:.2s;
-}
-
-button:hover{
-    background:#0d47a1;
-}
-
-/* ===== STATS ===== */
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-}
-
-.stats div{
-    text-align:center;
-    padding:10px;
-    background:#f1f5f9;
-    border-radius:10px;
-}
-
-body.dark .stats div{
-    background:#0f172a;
-    border:1px solid #334155;
-}
-
-.stats h3{
-    font-size:14px;
-    margin-bottom:5px;
-}
-
-.stats p{
-    font-size:22px;
-    font-weight:bold;
-}
-
-/* ===== BARRA ===== */
-
-.barra{
-    width:100%;
-    height:20px;
-    background:#cbd5e1;
-    border-radius:20px;
-    overflow:hidden;
-    margin-top:10px;
-}
-
-#progresso{
-    width:0%;
-    height:100%;
-    background:#22c55e;
-    transition:.3s;
-}
-
-/* ===== LISTA ===== */
-
-#lista{
-    display:flex;
-    flex-direction:column;
-    gap:15px;
-}
-
-.questao{
-    padding:15px;
-    border:1px solid #e2e8f0;
-    border-radius:10px;
-}
-
-body.dark .questao{
-    border:1px solid #334155;
-}
-
-.questao small{
-    display:block;
-    margin:5px 0;
-    color:#64748b;
-}
-
-.acoes{
-    display:flex;
-    gap:10px;
-    margin-top:10px;
-    flex-wrap:wrap;
-}
-
-.acoes button{
-    flex:1;
-}
-
-.btn-acerto{
-    background:#16a34a;
-}
-
-.btn-erro{
-    background:#dc2626;
-}
-
-.btn-fav{
-    background:#f59e0b;
-}
-
-.btn-remove{
-    background:#6b7280;
-}
-
-/* ===== MOBILE ===== */
-
-@media(max-width:700px){
-
-.stats{
-    grid-template-columns:repeat(2,1fr);
+document.getElementById("resumo").innerHTML = `
+<h2>Resultado</h2>
+<p>Acertos: ${acertos}</p>
+<p>Erros: ${erros}</p>
+<p>Percentual: ${porcentagem}%</p>
+<h3>${mensagem}</h3>
+<p><i>${fraseFinal}</i></p>
+`;
 }
